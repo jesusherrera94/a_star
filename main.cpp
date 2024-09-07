@@ -1,23 +1,39 @@
-#include <iostream>
-#include<vector>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <sstream>
+#include <vector>
 using std::cout;
-using std::vector;
 using std::ifstream;
-using std::string;
 using std::istringstream;
+using std::string;
+using std::vector;
+
 
 vector<int> ParseLine (string line) {
   	vector<int> fetched_board_line {};
   	istringstream line_stream(line);
 	int element;
   	char token;
-  	while (line_stream >> element >> token) {
+  	while (line_stream >> element >> token && token == ',') {
     	fetched_board_line.push_back(element);
     }
   	return fetched_board_line;
+}
+
+// TODO: Change the return type of ReadBoardFile.
+vector<vector<int>> ReadBoardFile(string path) {
+	ifstream board_file;
+  	board_file.open(path);
+  	vector<vector<int>> board {};
+  if (board_file) {
+  	cout<<"The file has been opened successfully! \n";
+    string line;
+    while (getline(board_file, line)) {
+      board.push_back(ParseLine(line));
+    }
+  }
+  return board;
 }
 
 void PrintBoard(vector<vector<int>> board) {
@@ -29,28 +45,8 @@ void PrintBoard(vector<vector<int>> board) {
     }
 }
 
-void ReadBoardFile(string path) {
-	ifstream board_file;
-  board_file.open(path);
-  if (board_file) {
-  	cout<<"The file has been opened successfully! \n";
-    string line;
-    while (getline(board_file, line)) {
-      cout<<line<<"\n";
-    }
-  }
-}
-
 int main() {
-  // TODO: Declare a "board" variable here, and store
-  // the data provided above.
-  vector<vector<int>> board {{0, 1, 0, 0, 0, 0},
-                            {0, 1, 0, 0, 0, 0},
-                            {0, 1, 0, 0, 0, 0},
-                            {0, 1, 0, 0, 0, 0},
-                            {0, 0, 0, 0, 1, 0}};
-  string file_path {"1.board"};
-  ReadBoardFile(file_path);
-  PrintBoard(board);
-  cout << "Hello!" << "\n";
+   vector<vector<int>> board {};
+   board = ReadBoardFile("1.board");
+   PrintBoard(board);
 }
