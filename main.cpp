@@ -2,10 +2,23 @@
 #include<vector>
 #include <fstream>
 #include <string>
+#include <sstream>
 using std::cout;
 using std::vector;
 using std::ifstream;
 using std::string;
+using std::istringstream;
+
+vector<int> ParseLine (string line) {
+  	vector<int> fetched_board_line {};
+  	istringstream line_stream(line);
+	int element;
+  	char token;
+  	while (line_stream >> element >> token) {
+    	fetched_board_line.push_back(element);
+    }
+  	return fetched_board_line;
+}
 
 void PrintBoard(vector<vector<int>> board) {
 	for(auto row : board) {
