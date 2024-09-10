@@ -9,6 +9,8 @@ using std::istringstream;
 using std::string;
 using std::vector;
 
+// Enum for obstacle and empty cell
+enum class State {kEmpty, kObstacle};
 
 vector<int> ParseLine (string line) {
   	vector<int> fetched_board_line {};
@@ -36,10 +38,19 @@ vector<vector<int>> ReadBoardFile(string path) {
   return board;
 }
 
+// function to print the formatted cell string
+string CellString (State cell) {
+	if (cell == State::kObstacle) {
+    	return "⛰️   ";
+    }
+  	return "0   ";
+}
+
 void PrintBoard(vector<vector<int>> board) {
 	for(auto row : board) {
     	for(int col : row) {
-        	cout<<col;
+			// static cast is for converting the int to State enum
+        	cout<<CellString(static_cast<State>(col));
         }
       	cout<<"\n";
     }
