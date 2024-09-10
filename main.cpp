@@ -12,22 +12,22 @@ using std::vector;
 // Enum for obstacle and empty cell
 enum class State {kEmpty, kObstacle};
 
-vector<int> ParseLine (string line) {
-  	vector<int> fetched_board_line {};
+vector<State> ParseLine (string line) {
+  	vector<State> fetched_board_line {};
   	istringstream line_stream(line);
 	int element;
   	char token;
   	while (line_stream >> element >> token && token == ',') {
-    	fetched_board_line.push_back(element);
+    	fetched_board_line.push_back(element == 0 ? State::kEmpty : State::kObstacle);
     }
   	return fetched_board_line;
 }
 
-// TODO: Change the return type of ReadBoardFile.
-vector<vector<int>> ReadBoardFile(string path) {
+
+vector<vector<State>> ReadBoardFile(string path) {
 	ifstream board_file;
   	board_file.open(path);
-  	vector<vector<int>> board {};
+  	vector<vector<State>> board {};
   if (board_file) {
   	cout<<"The file has been opened successfully! \n";
     string line;
@@ -46,18 +46,19 @@ string CellString (State cell) {
   	return "0   ";
 }
 
-void PrintBoard(vector<vector<int>> board) {
+void PrintBoard(vector<vector<State>> board) {
 	for(auto row : board) {
-    	for(int col : row) {
+    	for(State col : row) {
 			// static cast is for converting the int to State enum
-        	cout<<CellString(static_cast<State>(col));
+        	// cout<<CellString(static_cast<State>(col));
+			cout<<CellString(col);
         }
       	cout<<"\n";
     }
 }
 
 int main() {
-   vector<vector<int>> board {};
+   vector<vector<State>> board {};
    board = ReadBoardFile("1.board");
    PrintBoard(board);
 }
