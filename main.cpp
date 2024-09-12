@@ -12,7 +12,7 @@ using std::string;
 using std::vector;
 
 // Enum for obstacle and empty cell
-enum class State {kEmpty, kObstacle};
+enum class State {kEmpty, kObstacle, kClosed};
 
 vector<State> ParseLine (string line) {
   	vector<State> fetched_board_line {};
@@ -61,6 +61,12 @@ void PrintBoard(vector<vector<State>> board) {
 
 int Heuristic (int x1, int y1, int x2, int y2) {
 	return std::abs(x2 - x1) + std::abs(y2 - y1);
+}
+
+void AddToOpen (int x, int y, int g, int h, vector<vector<int>> &open_nodes, vector<vector<State>> &grid) {
+	vector<int> node {x, y, g, h};
+  	open_nodes.push_back(node);
+  	grid[x][y] = State::kClosed;
 }
 
 vector<vector<State>> Search(vector<vector<State>> board, int start[2], int goal[2]) {
