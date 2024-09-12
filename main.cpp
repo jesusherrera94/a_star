@@ -3,6 +3,8 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <cmath>
+
 using std::cout;
 using std::ifstream;
 using std::istringstream;
@@ -55,6 +57,10 @@ void PrintBoard(vector<vector<State>> board) {
         }
       	cout<<"\n";
     }
+}
+
+int Heuristic (int x1, int y1, int x2, int y2) {
+	return std::abs(x2 - x1) + std::abs(y2 - y1);
 }
 
 vector<vector<State>> Search(vector<vector<State>> board, int start[2], int goal[2]) {
