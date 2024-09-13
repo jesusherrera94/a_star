@@ -4,15 +4,17 @@
 #include <sstream>
 #include <vector>
 #include <cmath>
+#include <algorithm>  // for sort
 
 using std::cout;
 using std::ifstream;
 using std::istringstream;
 using std::string;
 using std::vector;
+using std::sort;
 
 // Enum for obstacle and empty cell
-enum class State {kEmpty, kObstacle, kClosed};
+enum class State {kEmpty, kObstacle, kClosed, kPath};
 
 vector<State> ParseLine (string line) {
   	vector<State> fetched_board_line {};
@@ -59,8 +61,33 @@ void PrintBoard(vector<vector<State>> board) {
     }
 }
 
+bool Compare(const vector<int> a, const vector<int> b) {
+  int f1 = a[2] + a[3]; // f1 = g1 + h1
+  int f2 = b[2] + b[3]; // f2 = g2 + h2
+  return f1 > f2; 
+}
+
+
+/**
+ * Sort the two-dimensional vector of ints in descending order.
+ */
+void CellSort(vector<vector<int>> *v) {
+  sort(v->begin(), v->end(), Compare);
+}
+
 int Heuristic (int x1, int y1, int x2, int y2) {
 	return std::abs(x2 - x1) + std::abs(y2 - y1);
+}
+
+bool CheckValidCell (int x, int y, vector<vector<State>> &grid) {
+	int rowSize = grid.size();
+  	int columSize = grid[0].size();
+  	if ((x < 0 && x > rowSize) 
+        && (y < 0 && y > columSize)) {
+      	cout<<"Invalid coordinate!: ("<<x<<", "<<y<<") \n";
+    	return false;
+    }
+   return grid[x][y] == State::kEmpty;
 }
 
 void AddToOpen (int x, int y, int g, int h, vector<vector<int>> &open_nodes, vector<vector<State>> &grid) {
@@ -69,15 +96,35 @@ void AddToOpen (int x, int y, int g, int h, vector<vector<int>> &open_nodes, vec
   	grid[x][y] = State::kClosed;
 }
 
-vector<vector<State>> Search(vector<vector<State>> board, int init[2], int goal[2]) {
-  	vector<vector<int>> open {};
- 	int x = init[0];
-  	int y = init[1];
-  	int g = 0;
-  	int h = Heuristic(x,y, goal[0], goal[1]);
-	AddToOpen(x,y,g,h,open,board);
-  	cout << "No path found!" << "\n";
-  	return {};
+vector<vector<State>> Search(vector<vector<State>> grid, int init[2], int goal[2]) {
+  // Create the vector of open nodes.
+  vector<vector<int>> open {};
+  
+  // Initialize the starting node.
+  int x = init[0];
+  int y = init[1];
+  int g = 0;
+  int h = Heuristic(x, y, goal[0],goal[1]);
+  AddToOpen(x, y, g, h, open, grid);
+ while (!open.empty()) {
+ 	CellSort(&open);
+   auto current = open.back();
+    open.pop_back();
+   cout<<current[0]<<", "<<current[1]<<", "<<current[2]<<", "<<current[3]<<", \n";
+    x = current[0];
+    y = current[1];
+    grid[x][y] = State::kPath;
+    if (x == goal[0] && y == goal[1]) {
+      return grid;
+    }
+   
+       // If we're not done, expand search to current node's neighbors. This step will be completed in a later quiz.
+    // ExpandNeighbors
+ }
+  
+  // We've run out of new nodes to explore and haven't found a path.
+  cout << "No path found!" << "\n";
+  return std::vector<vector<State>>{};
 }
 
 int main() {
