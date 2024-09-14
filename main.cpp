@@ -14,7 +14,7 @@ using std::vector;
 using std::sort;
 
 // Enum for obstacle and empty cell
-enum class State {kEmpty, kObstacle, kClosed, kPath};
+enum class State {kEmpty, kObstacle, kClosed, kPath, kStart, kFinish};
 
 // directional deltas
 const int delta[4][2]{{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
@@ -108,15 +108,19 @@ vector<vector<State>> Search(vector<vector<State>> grid, int init[2], int goal[2
   int g = 0;
   int h = Heuristic(x, y, goal[0],goal[1]);
   AddToOpen(x, y, g, h, open, grid);
+
  while (!open.empty()) {
  	CellSort(&open);
    auto current = open.back();
     open.pop_back();
-   cout<<current[0]<<", "<<current[1]<<", "<<current[2]<<", "<<current[3]<<", \n";
+   // cout<<current[0]<<", "<<current[1]<<", "<<current[2]<<", "<<current[3]<<", \n";
     x = current[0];
     y = current[1];
     grid[x][y] = State::kPath;
     if (x == goal[0] && y == goal[1]) {
+      // add start and goal when solution has been found!
+      grid[init[0]][init[1]] = State::kStart;
+  		grid[goal[0]][goal[1]] = State::kFinish;
       return grid;
     }
    
@@ -136,6 +140,12 @@ string CellString (State cell) {
     }
   if (cell == State::kPath) {
     return "🚗   ";
+  }
+  if (cell == State::kStart){
+    return "🚦   ";
+  }
+   if (cell == State::kFinish){
+    return "🏁   ";
   }
   	return "0   ";
 }
