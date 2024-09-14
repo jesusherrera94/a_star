@@ -16,6 +16,9 @@ using std::sort;
 // Enum for obstacle and empty cell
 enum class State {kEmpty, kObstacle, kClosed, kPath};
 
+// directional deltas
+const int delta[4][2]{{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
+
 vector<State> ParseLine (string line) {
   	vector<State> fetched_board_line {};
   	istringstream line_stream(line);
@@ -42,31 +45,11 @@ vector<vector<State>> ReadBoardFile(string path) {
   return board;
 }
 
-// function to print the formatted cell string
-string CellString (State cell) {
-	if (cell == State::kObstacle) {
-    	return "⛰️   ";
-    }
-  	return "0   ";
-}
-
-void PrintBoard(vector<vector<State>> board) {
-	for(auto row : board) {
-    	for(State col : row) {
-			// static cast is for converting the int to State enum
-        	// cout<<CellString(static_cast<State>(col));
-			cout<<CellString(col);
-        }
-      	cout<<"\n";
-    }
-}
-
 bool Compare(const vector<int> a, const vector<int> b) {
   int f1 = a[2] + a[3]; // f1 = g1 + h1
   int f2 = b[2] + b[3]; // f2 = g2 + h2
   return f1 > f2; 
 }
-
 
 /**
  * Sort the two-dimensional vector of ints in descending order.
@@ -82,9 +65,9 @@ int Heuristic (int x1, int y1, int x2, int y2) {
 bool CheckValidCell (int x, int y, vector<vector<State>> &grid) {
 	int rowSize = grid.size();
   	int columSize = grid[0].size();
-  	if ((x < 0 && x > rowSize) 
-        && (y < 0 && y > columSize)) {
-      	cout<<"Invalid coordinate!: ("<<x<<", "<<y<<") \n";
+  	if ((x < 0 || x > (rowSize - 1)) 
+        || (y < 0 || y > (columSize - 1))) {
+      	// cout<<"Invalid coordinate!: ("<<x<<", "<<y<<") \n";
     	return false;
     }
    return grid[x][y] == State::kEmpty;
@@ -94,6 +77,25 @@ void AddToOpen (int x, int y, int g, int h, vector<vector<int>> &open_nodes, vec
 	vector<int> node {x, y, g, h};
   	open_nodes.push_back(node);
   	grid[x][y] = State::kClosed;
+}
+
+void ExpandNeighbors(auto &current_node, const int goal[2], auto &open, vector<vector<State>> &grid) {
+  
+  int x = current_node[0];
+  int y = current_node[1];
+  int g = current_node[2];
+  std::size_t deltaSize = sizeof(delta) / sizeof(delta[0]);
+
+  for (int i = 0; i < deltaSize; i++) {
+    int x2 = x + delta[i][0];
+    int y2 = y + delta[i][1];
+    
+    if (CheckValidCell(x2, y2, grid)) {
+      int g2 = g + 1;
+      int h2 = Heuristic(x2, y2, goal[0], goal[1]);
+      AddToOpen(x2, y2, g2, h2, open, grid);
+    }
+  }
 }
 
 vector<vector<State>> Search(vector<vector<State>> grid, int init[2], int goal[2]) {
@@ -119,12 +121,34 @@ vector<vector<State>> Search(vector<vector<State>> grid, int init[2], int goal[2
     }
    
        // If we're not done, expand search to current node's neighbors. This step will be completed in a later quiz.
-    // ExpandNeighbors
+    ExpandNeighbors(current, goal, open, grid);
  }
   
   // We've run out of new nodes to explore and haven't found a path.
   cout << "No path found!" << "\n";
   return std::vector<vector<State>>{};
+}
+
+// function to print the formatted cell string
+string CellString (State cell) {
+	if (cell == State::kObstacle) {
+    	return "⛰️   ";
+    }
+  if (cell == State::kPath) {
+    return "🚗   ";
+  }
+  	return "0   ";
+}
+
+void PrintBoard(vector<vector<State>> board) {
+	for(auto row : board) {
+    	for(State col : row) {
+			// static cast is for converting the int to State enum
+        	// cout<<CellString(static_cast<State>(col));
+			cout<<CellString(col);
+        }
+      	cout<<"\n";
+    }
 }
 
 int main() {
