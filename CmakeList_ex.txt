@@ -1,0 +1,12 @@
+# cmake minimun version
+cmake_minimum_required(VERSION 3.5.1)
+# cpp version
+set(CMAKE_CXX_STANDARD 14)
+
+#project name
+
+project(cmake_example)
+
+#executable name and files
+
+add_executable(example_build  src/main.cpp  increment_and_sum.cpp vect_add_one.cpp)
